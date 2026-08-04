@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEschool · Миссия «Гиперион»</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06040f;
+  --bg2:#0b0821;
+  --panel:#0f0b28;
+  --violet:#8b5cf6;
+  --violet2:#a78bfa;
+  --pink:#ec4899;
+  --yellow:#fbbf24;
+  --blue:#22d3ee;
+  --text:#eae7fb;
+  --muted:#948fbf;
+  --border:rgba(139,92,246,.35);
+  --card:rgba(255,255,255,.035);
+  --good:#34d399;
+  --bad:#fb7185;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(1200px 700px at 15% -10%, rgba(139,92,246,.25), transparent 60%),
+    radial-gradient(1000px 700px at 100% 10%, rgba(236,72,153,.16), transparent 55%),
+    radial-gradient(900px 600px at 50% 110%, rgba(34,211,238,.14), transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  position:relative;
+  overflow-x:hidden;
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+#stars, #stars2{position:fixed;inset:0;z-index:0;pointer-events:none;}
+#stars{background-image:
+  radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+  radial-gradient(1.5px 1.5px at 120px 80px, #fff, transparent),
+  radial-gradient(2px 2px at 200px 150px, rgba(255,255,255,.8), transparent),
+  radial-gradient(1.5px 1.5px at 300px 40px, #fff, transparent),
+  radial-gradient(2px 2px at 400px 200px, rgba(255,255,255,.7), transparent),
+  radial-gradient(1.5px 1.5px at 60px 220px, #fff, transparent),
+  radial-gradient(2px 2px at 500px 100px, #fff, transparent);
+  background-repeat:repeat; background-size:560px 320px;
+  opacity:.5; animation:drift 90s linear infinite;
+}
+@keyframes drift{from{background-position:0 0;}to{background-position:-1120px 640px;}}
+.app{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:20px 16px 60px;}
+
+/* ---------- generic ---------- */
+.screen{display:none;}
+.screen.active{display:block; animation:fadein .5s ease both;}
+@keyframes fadein{from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:translateY(0);}}
+button{font-family:inherit; cursor:pointer;}
+.btn{
+  border:1px solid var(--border); background:linear-gradient(135deg, rgba(139,92,246,.18), rgba(236,72,153,.12));
+  color:var(--text); padding:14px 26px; border-radius:14px; font-weight:700; font-size:15px;
+  letter-spacing:.02em; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  box-shadow:0 0 0 rgba(139,92,246,0);
+}
+.btn:hover{transform:translateY(-2px); border-color:var(--violet2); box-shadow:0 8px 24px rgba(139,92,246,.35);}
+.btn:active{transform:translateY(0);}
+.btn.primary{background:linear-gradient(135deg, var(--violet), var(--pink)); border:none; color:#0a0714;}
+.btn.primary:hover{box-shadow:0 8px 28px rgba(236,72,153,.45);}
+.btn:disabled{opacity:.4; cursor:not-allowed; transform:none; box-shadow:none;}
+.pill{display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; border:1px solid var(--border); color:var(--violet2); background:rgba(139,92,246,.08);}
+
+/* ---------- start screen ---------- */
+.hero{text-align:center; padding:40px 10px 10px;}
+.logo{font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.35em; color:var(--blue); text-transform:uppercase; margin-bottom:18px;}
+.hero h1{font-size:42px; line-height:1.1; margin:0 0 14px; font-weight:900;
+  background:linear-gradient(120deg,#fff 10%, var(--violet2) 45%, var(--pink) 75%, var(--yellow));
+  -webkit-background-clip:text; background-clip:text; color:transparent;}
+.hero p{color:var(--muted); font-size:16px; max-width:560px; margin:0 auto 28px; line-height:1.6;}
+.ship{width:100%; max-width:520px; margin:0 auto 30px; display:block;}
+.brief{background:var(--card); border:1px solid var(--border); border-radius:20px; padding:24px; margin:0 auto 26px; max-width:560px; text-align:left; backdrop-filter:blur(6px);}
+.brief h3{margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:.12em; color:var(--yellow);}
+.brief ul{margin:0; padding-left:18px; color:var(--muted); font-size:14.5px; line-height:1.8;}
+.brief li b{color:var(--text);}
+.name-row{display:flex; gap:10px; justify-content:center; margin-bottom:22px; flex-wrap:wrap;}
+.name-row input{
+  background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:12px; color:var(--text);
+  padding:14px 16px; font-size:15px; width:280px; max-width:70vw; font-family:'JetBrains Mono',monospace;
+}
+.name-row input::placeholder{color:var(--muted);}
+.name-row input:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(34,211,238,.15);}
+.stats-row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:30px;}
+.stat-chip{border:1px solid var(--border); border-radius:14px; padding:12px 18px; text-align:center; background:var(--card); min-width:110px;}
+.stat-chip .n{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:20px; color:var(--yellow);}
+.stat-chip .l{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:2px;}
+
+/* ---------- HUD ---------- */
+.hud{
+  position:sticky; top:10px; z-index:5;
+  display:flex; align-items:center; gap:12px; justify-content:space-between;
+  background:rgba(10,7,25,.72); backdrop-filter:blur(10px);
+  border:1px solid var(--border); border-radius:18px; padding:12px 16px; margin-bottom:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+.hud-left{display:flex; align-items:center; gap:10px; min-width:0;}
+.hud-avatar{width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,var(--violet),var(--blue)); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;}
+.hud-id{min-width:0;}
+.hud-id .callsign{font-weight:700; font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;}
+.hud-id .rank{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
+.hud-right{display:flex; align-items:center; gap:16px;}
+.hud-metric{text-align:center;}
+.hud-metric .v{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:15px;}
+.hud-metric .l{font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+.hud-metric.score .v{color:var(--yellow);}
+.hud-metric.timer .v{color:var(--blue);}
+
+.trail{display:flex; gap:5px; flex-wrap:wrap; margin-bottom:22px; padding:10px 12px; background:var(--card); border:1px solid var(--border); border-radius:14px;}
+.trail .dot{width:16px; height:16px; border-radius:50%; border:2px solid rgba(148,143,191,.4); flex-shrink:0; transition:all .25s ease; position:relative;}
+.trail .dot.done-ok{background:var(--good); border-color:var(--good); box-shadow:0 0 8px rgba(52,211,153,.7);}
+.trail .dot.done-bad{background:var(--bad); border-color:var(--bad); box-shadow:0 0 8px rgba(251,113,133,.6);}
+.trail .dot.current{border-color:var(--yellow); box-shadow:0 0 0 4px rgba(251,191,36,.18); transform:scale(1.25);}
+
+/* ---------- quest card ---------- */
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
+  border:1px solid var(--border); border-radius:22px; padding:26px; position:relative; overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+.card::before{content:""; position:absolute; inset:0; background:radial-gradient(400px 200px at 100% 0%, rgba(236,72,153,.12), transparent); pointer-events:none;}
+.loc-tag{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:8px;}
+.loc-tag .loc{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--blue); letter-spacing:.04em;}
+.cat-pill{font-size:10.5px; padding:4px 10px; border-radius:999px; background:rgba(139,92,246,.15); border:1px solid var(--border); color:var(--violet2); text-transform:uppercase; letter-spacing:.05em; font-weight:700;}
+
+.dialogue{display:flex; gap:12px; margin-bottom:20px; align-items:flex-start;}
+.dlg-avatar{width:48px; height:48px; border-radius:14px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:24px; border:1px solid var(--border);}
+.dlg-avatar.sigma{background:linear-gradient(135deg,#1c1440,#3b2e78);}
+.dlg-avatar.tim{background:linear-gradient(135deg,#1a3020,#2f6b3f);}
+.dlg-avatar.lis{background:linear-gradient(135deg,#3a1830,#7a2a5c);}
+.dlg-bubble{background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:4px 16px 16px 16px; padding:12px 16px; flex:1;}
+.dlg-name{font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px;}
+.dlg-name.sigma{color:var(--blue);} .dlg-name.tim{color:var(--good);} .dlg-name.lis{color:var(--pink);}
+.dlg-text{font-size:14.5px; line-height:1.55; color:#e4e1f7;}
+
+.question{font-size:19px; font-weight:700; line-height:1.4; margin:0 0 18px;}
+
+/* choice grid */
+.choices{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:6px;}
+@media(max-width:560px){.choices{grid-template-columns:1fr;}}
+.choice-card{
+  text-align:left; background:rgba(255,255,255,.03); border:1.5px solid var(--border); border-radius:14px;
+  padding:14px 16px; font-size:14.5px; color:var(--text); line-height:1.4; transition:all .15s ease; position:relative;
+}
+.choice-card:hover:not(:disabled){border-color:var(--violet2); background:rgba(139,92,246,.1); transform:translateY(-2px);}
+.choice-card .k{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:6px; background:rgba(139,92,246,.2); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; margin-right:8px;}
+.choice-card.correct{border-color:var(--good); background:rgba(52,211,153,.13); box-shadow:0 0 16px rgba(52,211,153,.25);}
+.choice-card.wrong{border-color:var(--bad); background:rgba(251,113,133,.13);}
+.choice-card:disabled{cursor:default;}
+
+/* input / sim */
+.answer-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px;}
+.answer-row input[type=number]{
+  background:rgba(255,255,255,.05); border:1.5px solid var(--border); border-radius:12px; color:var(--text);
+  padding:13px 14px; font-size:16px; width:160px; font-family:'JetBrains Mono',monospace; font-weight:600;
+}
+.answer-row input[type=number]:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(34,211,238,.15);}
+.answer-row .unit{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:13px;}
+
+.simbox{background:rgba(0,0,0,.25); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:18px;}
+.simbox .readout{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--yellow); margin-top:10px; min-height:18px;}
+.simbox .sublabel{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;}
+input[type=range]{width:100%; accent-color:var(--pink); height:6px;}
+
+.visual{height:130px; display:flex; align-items:center; justify-content:center; margin-bottom:6px; position:relative;}
+
+/* beam */
+.beam-wrap{width:260px; height:120px; position:relative;}
+.beam-pole{position:absolute; left:50%; bottom:0; width:6px; height:60px; background:linear-gradient(#4a4470,#231c42); transform:translateX(-50%); border-radius:3px;}
+.beam-fulcrum{position:absolute; left:50%; bottom:56px; width:0; height:0; border-left:12px solid transparent; border-right:12px solid transparent; border-bottom:16px solid var(--violet2); transform:translateX(-50%);}
+.beam-bar{position:absolute; left:50%; bottom:70px; width:220px; height:6px; background:linear-gradient(90deg,var(--blue),var(--pink)); border-radius:3px; transform-origin:center; transform:translateX(-50%) rotate(0deg); transition:transform .3s ease;}
+.beam-pan{position:absolute; width:46px; height:34px; border:2px solid var(--violet2); border-top:none; border-radius:0 0 10px 10px; top:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-family:'JetBrains Mono',monospace;}
+.beam-pan.left{left:-4px;} .beam-pan.right{right:-4px;}
+
+/* spring */
+.spring-wrap{display:flex; flex-direction:column; align-items:center; height:130px; justify-content:flex-end;}
+.spring-mount{width:60px; height:8px; background:var(--violet2); border-radius:4px;}
+.spring-coil{width:34px; background:repeating-linear-gradient(180deg, var(--blue) 0 3px, transparent 3px 9px); border-left:2px solid var(--blue); border-right:2px solid var(--blue); transition:height .2s ease;}
+.spring-mass{width:44px; height:26px; background:linear-gradient(135deg,var(--pink),#9333ea); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:14px;}
+
+/* tank */
+.tank-wrap{width:150px; height:120px; border:2px solid var(--blue); border-top:none; border-radius:0 0 10px 10px; position:relative; overflow:hidden; background:rgba(34,211,238,.03);}
+.tank-water{position:absolute; left:0; right:0; bottom:0; background:linear-gradient(180deg, rgba(34,211,238,.55), rgba(34,211,238,.25)); transition:height .25s ease;}
+.tank-obj{position:absolute; left:50%; width:38px; height:38px; background:linear-gradient(135deg,var(--yellow),var(--pink)); border-radius:8px; transform:translateX(-50%); transition:top .25s ease; display:flex; align-items:center; justify-content:center; font-size:16px;}
+
+/* footprint */
+.pad-wrap{width:220px; height:90px; border-radius:10px; background:linear-gradient(180deg,#2a2214,#1a1508); position:relative; display:flex; align-items:flex-end; justify-content:center; overflow:hidden;}
+.pad-block{width:70px; background:linear-gradient(135deg,var(--violet),var(--blue)); border-radius:6px 6px 2px 2px; transition:all .25s ease; display:flex; align-items:center; justify-content:center; font-size:20px;}
+.pad-mark{position:absolute; bottom:4px; border-radius:50%; background:radial-gradient(circle, rgba(251,113,133,.55), transparent 70%); transition:all .25s ease;}
+
+/* gauge */
+.gauge-wrap{width:70px; height:130px; border:2px solid var(--blue); border-radius:10px; position:relative; overflow:hidden; background:rgba(34,211,238,.03);}
+.gauge-water{position:absolute; left:0; right:0; bottom:0; background:linear-gradient(180deg, rgba(34,211,238,.5), rgba(139,92,246,.35));}
+.gauge-probe{position:absolute; left:50%; width:22px; height:22px; transform:translateX(-50%); font-size:16px; text-align:center; transition:top .2s ease;}
+
+/* particles */
+.particle-wrap{width:100%; height:110px; border:1px dashed var(--border); border-radius:12px; position:relative; overflow:hidden; background:rgba(255,255,255,.02);}
+.particle{position:absolute; width:7px; height:7px; border-radius:50%; background:var(--yellow); box-shadow:0 0 6px var(--yellow);}
+
+.feedback{border-radius:14px; padding:14px 16px; margin-top:16px; display:none; font-size:14px; line-height:1.55;}
+.feedback.show{display:block; animation:fadein .35s ease both;}
+.feedback.ok{background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.4); color:#c9f7e6;}
+.feedback.bad{background:rgba(251,113,133,.1); border:1px solid rgba(251,113,133,.4); color:#ffd9df;}
+.feedback b{color:var(--yellow);}
+.next-row{display:flex; justify-content:flex-end; margin-top:18px;}
+
+/* ---------- results ---------- */
+.res-hero{text-align:center; padding:20px 10px 8px;}
+.res-hero .big{font-size:52px; font-weight:900; font-family:'JetBrains Mono',monospace;
+  background:linear-gradient(120deg,var(--yellow),var(--pink)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.res-hero .rank{margin-top:6px; font-size:16px; color:var(--violet2); font-weight:700;}
+.res-hero .sub{color:var(--muted); font-size:13.5px; margin-top:8px;}
+.metrics{display:flex; flex-direction:column; gap:14px; margin:26px 0;}
+.metric-row .top{display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:6px;}
+.metric-row .top b{font-family:'JetBrains Mono',monospace; color:var(--blue);}
+.metric-bar{height:10px; border-radius:6px; background:rgba(255,255,255,.06); overflow:hidden; border:1px solid var(--border);}
+.metric-fill{height:100%; border-radius:6px; background:linear-gradient(90deg,var(--violet),var(--pink)); transition:width 1s ease;}
+.res-actions{display:flex; gap:12px; justify-content:center; margin:26px 0; flex-wrap:wrap;}
+
+.reco{margin-top:40px; border-top:1px dashed var(--border); padding-top:30px;}
+.reco-head{text-align:center; margin-bottom:22px;}
+.reco-head .tag{color:var(--yellow); font-size:12px; letter-spacing:.14em; text-transform:uppercase; font-weight:800;}
+.reco-head h2{font-size:26px; margin:8px 0 0; font-weight:900;}
+.reco-card{background:var(--card); border:1px solid var(--border); border-radius:18px; padding:22px; margin-bottom:14px;}
+.reco-card h4{margin:0 0 8px; font-size:15px; color:var(--violet2);}
+.reco-card p{margin:0; font-size:14px; line-height:1.65; color:#dcd9f2;}
+.reco-modules{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
+.reco-modules span{font-size:11.5px; background:rgba(139,92,246,.15); border:1px solid var(--border); color:var(--violet2); padding:5px 11px; border-radius:999px; font-weight:600;}
+.cta-card{margin-top:20px; text-align:center; background:linear-gradient(135deg, rgba(139,92,246,.18), rgba(236,72,153,.14)); border:1px solid var(--violet2); border-radius:20px; padding:28px 20px;}
+.cta-card h3{margin:0 0 8px; font-size:20px;}
+.cta-card p{margin:0 0 18px; color:var(--muted); font-size:14px;}
+footer.site{text-align:center; margin-top:40px; color:var(--muted); font-size:12px; letter-spacing:.04em;}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div class="app" id="app">
+
+  <!-- ================= START ================= -->
+  <section class="screen active" id="screen-start">
+    <div class="hero">
+      <div class="logo">K E S C H O O L · КОСМОФЛОТ</div>
+      <h1>Миссия «Гиперион»</h1>
+      <p>Крейсер попал в гравитационную аномалию. Системы жизнеобеспечения повреждены на 20 узлах. Ты — кадет-пилот, и только физика 7 класса вернёт корабль домой.</p>
+    </div>
+
+    <div class="brief">
+      <h3>Брифинг перед стартом</h3>
+      <ul>
+        <li><b>20 отсеков</b> — от строения вещества до простых механизмов</li>
+        <li>Диалоги с экипажем: <b>Сигма</b> (бортовой ИИ), <b>Тим</b> (инопланетянин-стажёр), <b>Лис</b> (штурман)</li>
+        <li>Часть отсеков — это <b>рабочие симуляторы</b>: весы, пружина, рычаг, давление, сила Архимеда</li>
+        <li>Идёт таймер миссии и счётчик очков — соберите максимум <b>⭐ 20/20</b></li>
+        <li>В конце — персональный разбор и рекомендации по программе обучения</li>
+      </ul>
+    </div>
+
+    <div class="name-row">
+      <input id="pilot-name" type="text" placeholder="Позывной пилота (необязательно)" maxlength="20">
+      <button class="btn primary" id="start-btn">🚀 Начать миссию</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-chip"><div class="n">20</div><div class="l">заданий</div></div>
+      <div class="stat-chip"><div class="n">5</div><div class="l">систем корабля</div></div>
+      <div class="stat-chip"><div class="n">7</div><div class="l">симуляторов</div></div>
+      <div class="stat-chip"><div class="n">1</div><div class="l">шанс на легенду</div></div>
+    </div>
+  </section>
+
+  <!-- ================= GAME ================= -->
+  <section class="screen" id="screen-game">
+    <div class="hud">
+      <div class="hud-left">
+        <div class="hud-avatar">🧑‍🚀</div>
+        <div class="hud-id">
+          <div class="callsign" id="hud-callsign">Кадет</div>
+          <div class="rank" id="hud-rank">Ранг: Стажёр</div>
+        </div>
+      </div>
+      <div class="hud-right">
+        <div class="hud-metric"><div class="v mono" id="hud-level">1/20</div><div class="l">отсек</div></div>
+        <div class="hud-metric score"><div class="v mono" id="hud-score">0</div><div class="l">очки</div></div>
+        <div class="hud-metric timer"><div class="v mono" id="hud-timer">00:00</div><div class="l">время</div></div>
+      </div>
+    </div>
+
+    <div class="trail" id="trail"></div>
+
+    <div class="card" id="quest-card"></div>
+  </section>
+
+  <!-- ================= RESULTS ================= -->
+  <section class="screen" id="screen-results">
+    <div class="res-hero">
+      <div class="pill">🛰️ Миссия завершена</div>
+      <div class="big" id="res-score">⭐ 0 / 20</div>
+      <div class="rank" id="res-rank">Ранг: —</div>
+      <div class="sub" id="res-sub">Время миссии: 00:00 · Точность: 0%</div>
+    </div>
+
+    <div class="metrics" id="res-metrics"></div>
+
+    <div class="res-actions">
+      <button class="btn" id="restart-btn">↺ Пройти миссию заново</button>
+    </div>
+
+    <div class="reco" id="reco-block"></div>
+
+    <footer class="site">KEschool · тренажёр по физике для 7 класса · вымышленная космическая миссия для практики знаний</footer>
+  </section>
+
+</div>
+
+<script>
+/* ===================== ДАННЫЕ ===================== */
+const CATS = {
+  A:{name:'Величины и измерения', mods:['Введение в физику','Единицы измерения и переводы']},
+  B:{name:'Строение вещества', mods:['Молекулы и атомы','Агрегатные состояния','Диффузия']},
+  C:{name:'Силы и механика', mods:['Взаимодействие тел','Сила тяжести и упругости','Трение']},
+  D:{name:'Давление и гидростатика', mods:['Давление твёрдых тел','Закон Паскаля','Сила Архимеда']},
+  E:{name:'Механизмы и работа', mods:['Простые механизмы','Работа, мощность, КПД']},
+};
+
+const SPK = {
+  sigma:{name:'Сигма · бортовой ИИ', cls:'sigma', icon:'🤖'},
+  tim:{name:'Тим · инопланетянин-стажёр', cls:'tim', icon:'👽'},
+  lis:{name:'Лис · штурман', cls:'lis', icon:'🧑‍🚀'},
+};
+
+const LEVELS = [
+{id:1, cat:'A', loc:'Мостик · главный экран', speaker:'sigma',
+  text:'Кадет, аномалия вырубила диагностику корабля. Прежде чем чинить системы, подтверди: ты вообще понимаешь, с чем мы работаем?',
+  question:'Что изучает физика?',
+  type:'choice',
+  options:['Только звёзды и далёкие галактики','Явления природы и законы, которым они подчиняются','Только историю развития техники','Только живые организмы'],
+  correct:1,
+  explain:'Физика — наука о природе: она изучает механические, тепловые, электрические и другие явления и ищет законы, которые ими управляют.'},
+
+{id:2, cat:'A', loc:'Отсек топливных магистралей', speaker:'lis',
+  text:'Нужно проложить резервный топливный шланг. Длина указана в километрах, а панель принимает только метры.',
+  question:'Переведи длину шланга 3,2 км в метры и введи число.',
+  type:'input', unit:'м', correct:3200, tol:5,
+  explain:'1 км = 1000 м, значит 3,2 км = 3,2 × 1000 = 3200 м.'},
+
+{id:3, cat:'B', loc:'Лаборатория вещества', speaker:'tim',
+  text:'Ого! На вашей планете тоже верят, что вещи состоят из пустоты и точек?! У нас в системе Тау это тоже проходят на первом курсе.',
+  question:'Из чего состоят все вещества?',
+  type:'choice',
+  options:['Из молекул и атомов','Из чистой энергии без частиц','Из светового излучения','Из вакуума и тени'],
+  correct:0,
+  explain:'Все вещества состоят из мельчайших частиц — молекул, которые, в свою очередь, состоят из атомов.'},
+
+{id:4, cat:'B', loc:'Камера диффузии', speaker:'sigma',
+  decor:'diffusion',
+  text:'Смотри на частицы в камере. Ползунок температуры подключён к энергетической сетке — подвигай его и понаблюдай за скоростью частиц.',
+  question:'При каком условии диффузия (взаимное проникновение частиц одного вещества между частицами другого) происходит быстрее?',
+  type:'choice',
+  options:['При понижении температуры','Диффузия не зависит от температуры','При повышении температуры','Только в невесомости'],
+  correct:2,
+  explain:'Чем выше температура — тем быстрее и хаотичнее движутся молекулы, поэтому диффузия ускоряется.'},
+
+{id:5, cat:'B', loc:'Стыковочный узел', speaker:'lis',
+  text:'При манёвре двигатели выключились, а корабль всё равно продолжает лететь по прямой с той же скоростью. Это не баг.',
+  question:'Тело сохраняет скорость постоянной (движется по инерции), если...',
+  type:'choice',
+  options:['На него не действуют другие тела, или их действия скомпенсированы','Оно движется по кругу','На него действует сила трения','Оно постоянно нагревается'],
+  correct:0,
+  explain:'Явление сохранения скорости тела при отсутствии (или компенсации) внешних воздействий называется инерцией.'},
+
+{id:6, cat:'A', loc:'Грузовой отсек · весы', speaker:'sigma',
+  text:'На левой чаше — инопланетный кристалл массой 4,7 кг. Подбери противовес на правой чаше, чтобы весы встали ровно.',
+  question:'Введи массу противовеса (кг), при которой весы уравновешены.',
+  type:'sim', sim:'balance', min:0, max:10, step:0.1, def:0, unit:'кг', correct:4.7, tol:0.15,
+  explain:'Весы уравновешены, когда массы на обеих чашах равны: 4,7 кг = 4,7 кг.'},
+
+{id:7, cat:'A', loc:'Склад образцов породы', speaker:'lis',
+  text:'Образец породы: масса 8 кг, объём — 2000 см³. Подвигай ползунок мерного цилиндра, чтобы понять, как объём влияет на плотность, а затем посчитай плотность именно нашего образца.',
+  question:'Найди плотность образца в кг/м³ (8 кг, 2000 см³ = 0,002 м³).',
+  type:'sim', sim:'density', min:500, max:3000, step:50, def:1500, unit:'кг/м³', correct:4000, tol:60,
+  explain:'ρ = m / V = 8 кг / 0,002 м³ = 4000 кг/м³. Плотность показывает, какая масса приходится на единицу объёма.'},
+
+{id:8, cat:'C', loc:'Реакторный отсек', speaker:'sigma',
+  text:'Датчики тяги ожили. Прежде чем читать показания — вспомни единицы.',
+  question:'В каких единицах измеряется сила в системе СИ?',
+  type:'choice',
+  options:['Джоуль','Паскаль','Ньютон','Ватт'],
+  correct:2,
+  explain:'Единица силы в СИ — ньютон (Н), названа в честь Исаака Ньютона.'},
+
+{id:9, cat:'C', loc:'Ангар зондов', speaker:'lis',
+  text:'Запускаем разведзонд массой 50 кг. Вблизи планеты g = 10 Н/кг.',
+  question:'Чему равна сила тяжести, действующая на зонд? Ответ в Н.',
+  type:'input', unit:'Н', correct:500, tol:10,
+  explain:'F = m·g = 50 кг × 10 Н/кг = 500 Н.'},
+
+{id:10, cat:'C', loc:'Амортизационный отсек', speaker:'tim',
+  text:'Наша посадочная пружина имеет жёсткость k = 300 Н/м. Растягивай её ползунком и следи за силой упругости на табло.',
+  question:'На сколько сантиметров нужно растянуть пружину, чтобы сила упругости достигла 15 Н?',
+  type:'sim', sim:'spring', min:0, max:15, step:0.5, def:0, unit:'см', correct:5, tol:0.4,
+  explain:'F = k·x → x = F / k = 15 Н / 300 Н/м = 0,05 м = 5 см.'},
+
+{id:11, cat:'C', loc:'Смотровая палуба', speaker:'sigma',
+  text:'Гравикомпенсаторы вышли из строя, и экипаж парит по каюте. Панике нет причин — это ожидаемо на орбите.',
+  question:'Почему на орбите космонавты находятся в состоянии невесомости?',
+  type:'choice',
+  options:['Потому что сила тяжести там равна нулю','Корабль и космонавт свободно падают вокруг Земли с одинаковым ускорением','Потому что в космосе нет воздуха','Потому что скорость корабля равна нулю'],
+  correct:1,
+  explain:'На орбите сила тяжести никуда не исчезает — она сообщает кораблю и телам внутри одинаковое ускорение, и они словно «падают» вместе, поэтому вес пропадает.'},
+
+{id:12, cat:'C', loc:'Шлюзовой коридор', speaker:'lis',
+  decor:'friction',
+  text:'Выбери тип покрытия коридора кнопкой ниже и посмотри, как быстро скользит ящик с оборудованием.',
+  question:'На какой поверхности сила трения будет наибольшей?',
+  type:'choice',
+  options:['Полированный лёд','Наждачная бумага','Промасленный металл','Мокрое стекло'],
+  correct:1,
+  explain:'Чем более шероховатая поверхность, тем сильнее «цепляются» друг за друга неровности — сила трения на наждачной бумаге максимальна.'},
+
+{id:13, cat:'D', loc:'Посадочная опора', speaker:'sigma',
+  text:'Опора корабля давит на грунт планеты силой 800 Н. Двигай площадь опоры ползунком и следи за отпечатком на грунте — он не должен «тонуть».',
+  question:'Найди минимальную площадь опоры (см²), при которой давление не превысит 40000 Па.',
+  type:'sim', sim:'pressure', min:50, max:500, step:10, def:100, unit:'см²', correct:200, tol:8,
+  explain:'p = F / S → S = F / p = 800 Н / 40000 Па = 0,02 м² = 200 см². Чем больше площадь опоры — тем меньше давление.'},
+
+{id:14, cat:'D', loc:'Гидравлический отсек', speaker:'lis',
+  text:'Гидравлический пресс шлюза ожил — жидкость передаёт усилие по всей системе труб одинаково.',
+  question:'Как передаётся давление, создаваемое на жидкость или газ (закон Паскаля)?',
+  type:'choice',
+  options:['Только вниз, по направлению силы тяжести','Одинаково по всем направлениям','Только в сторону, куда приложена сила','Давление в жидкостях не передаётся'],
+  correct:1,
+  explain:'Закон Паскаля: давление, произведённое на жидкость или газ, передаётся в любую точку без изменений по всем направлениям.'},
+
+{id:15, cat:'D', loc:'Затопленный трюм', speaker:'tim',
+  text:'Трюм залило водой инопланетного океана (плотность 1000 кг/м³). Опускай зонд ползунком и следи за манометром.',
+  question:'На какой глубине (м) давление воды достигнет 50000 Па? (g = 10 Н/кг)',
+  type:'sim', sim:'depth', min:0, max:10, step:0.2, def:0, unit:'м', correct:5, tol:0.3,
+  explain:'p = ρ·g·h → h = p / (ρ·g) = 50000 / (1000×10) = 5 м.'},
+
+{id:16, cat:'D', loc:'Шлюзовая камера', speaker:'sigma',
+  text:'Перед открытием шлюза системе нужно подтверждение теории — атмосферное давление реально, а не выдумка приборов.',
+  question:'Что из перечисленного доказывает существование атмосферного давления?',
+  type:'choice',
+  options:['Опыт Торричелли с ртутным столбом и работа присосок','Только показания бортовых барометров','Атмосферное давление не доказано','Только вакуумные насосы на станции'],
+  correct:0,
+  explain:'Классический опыт Торричелли с ртутным барометром и обычные присоски наглядно доказывают, что атмосфера давит на все тела.'},
+
+{id:17, cat:'D', loc:'Резервуар балласта', speaker:'lis',
+  text:'Погружаем контейнер объёмом 2 литра в балластную воду (ρ = 1000 кг/м³, g = 10 Н/кг). Двигай ползунок погружения и следи за весами.',
+  question:'Чему равна архимедова (выталкивающая) сила при полном погружении контейнера? Ответ в Н.',
+  type:'sim', sim:'archimedes', min:0, max:100, step:5, def:0, unit:'%', correct:20, tol:1.2,
+  explain:'F_A = ρ·g·V = 1000 кг/м³ × 10 Н/кг × 0,002 м³ = 20 Н.'},
+
+{id:18, cat:'D', loc:'Отсек плавучих буёв', speaker:'tim',
+  text:'У нас на Тау говорят: «тонет не тот, кто тяжёлый, а тот, кто плотный». Проверим на практике!',
+  question:'Кусок вещества имеет плотность 1200 кг/м³. Утонет ли он в воде (ρ воды = 1000 кг/м³)?',
+  type:'choice',
+  options:['Утонет — его плотность больше плотности воды','Всплывёт и будет полностью над водой','Будет плавать, не погружаясь совсем','Определить невозможно без формы тела'],
+  correct:0,
+  explain:'Если плотность тела больше плотности жидкости, тело тонет: архимедова сила не может уравновесить силу тяжести.'},
+
+{id:19, cat:'E', loc:'Механический цех', speaker:'sigma',
+  text:'Аварийный рычаг заклинило под грузом 300 Н на плече 0,4 м. С другой стороны ты можешь прикладывать силу 150 Н — подбери длину своего плеча.',
+  question:'На каком расстоянии l₂ (м) от опоры нужно приложить силу 150 Н, чтобы уравновесить рычаг?',
+  type:'sim', sim:'lever', min:0, max:1.5, step:0.05, def:0, unit:'м', correct:0.8, tol:0.05,
+  explain:'Правило рычага: F₁·l₁ = F₂·l₂ → l₂ = (300 × 0,4) / 150 = 0,8 м.'},
+
+{id:20, cat:'E', loc:'Ядро знаний · последний рубеж', speaker:'lis',
+  text:'Последний узел. Подъёмник главного двигателя тратит энергию не только на полезную работу, но и на потери в трении.',
+  question:'Полезная работа подъёмника — 4000 Дж, полная работа мотора — 5000 Дж. Найди КПД в процентах.',
+  type:'input', unit:'%', correct:80, tol:2,
+  explain:'КПД = (A полезная / A полная) × 100% = (4000 / 5000) × 100% = 80%.'},
+];
+
+/* ===================== СОСТОЯНИЕ ===================== */
+const state = {
+  name:'Кадет',
+  score:0,
+  idx:0,
+  answered:false,
+  cat: Object.fromEntries(Object.keys(CATS).map(k=>[k,{c:0,t:0}])),
+  results: [],
+  startTs:0,
+  timerId:null,
+  elapsedMs:0,
+};
+
+/* ===================== УТИЛИТЫ ===================== */
+function $(sel){return document.querySelector(sel);}
+function el(tag, cls, html){const e=document.createElement(tag); if(cls)e.className=cls; if(html!==undefined)e.innerHTML=html; return e;}
+function fmtTime(ms){
+  const s = Math.floor(ms/1000);
+  const m = Math.floor(s/60);
+  const ss = s%60;
+  return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+/* ===================== СТАРТ ===================== */
+$('#start-btn').addEventListener('click', ()=>{
+  const v = $('#pilot-name').value.trim();
+  state.name = v || 'Кадет';
+  $('#hud-callsign').textContent = state.name;
+  state.startTs = Date.now();
+  state.timerId = setInterval(()=>{
+    state.elapsedMs = Date.now() - state.startTs;
+    $('#hud-timer').textContent = fmtTime(state.elapsedMs);
+  }, 500);
+  showScreen('#screen-game');
+  buildTrail();
+  renderLevel(0);
+});
+
+$('#restart-btn').addEventListener('click', ()=>{
+  state.score=0; state.idx=0; state.answered=false; state.results=[];
+  state.cat = Object.fromEntries(Object.keys(CATS).map(k=>[k,{c:0,t:0}]));
+  clearInterval(state.timerId);
+  showScreen('#screen-start');
+  $('#pilot-name').value='';
+});
+
+/* ===================== ТРЕЙЛ / HUD ===================== */
+function buildTrail(){
+  const trail = $('#trail'); trail.innerHTML='';
+  LEVELS.forEach((lv,i)=>{
+    const d = el('div','dot'); d.dataset.i=i;
+    trail.appendChild(d);
+  });
+  updateTrail();
+}
+function updateTrail(){
+  document.querySelectorAll('.trail .dot').forEach((d,i)=>{
+    d.classList.remove('current','done-ok','done-bad');
+    if(state.results[i]===true) d.classList.add('done-ok');
+    else if(state.results[i]===false) d.classList.add('done-bad');
+    if(i===state.idx) d.classList.add('current');
+  });
+}
+function updateHud(){
+  $('#hud-level').textContent = (state.idx+1)+'/20';
+  $('#hud-score').textContent = state.score;
+  const ranks = ['Стажёр','Курсант','Пилот-исследователь','Штурман рубежа','Командир эскадры'];
+  const r = Math.min(4, Math.floor(state.score/4.5));
+  $('#hud-rank').textContent = 'Ранг: '+ranks[r];
+}
+
+/* ===================== РЕНДЕР УРОВНЯ ===================== */
+function renderLevel(i){
+  state.idx = i;
+  state.answered = false;
+  const lv = LEVELS[i];
+  const sp = SPK[lv.speaker];
+  updateHud(); updateTrail();
+
+  const card = $('#quest-card');
+  card.innerHTML = '';
+
+  const locRow = el('div','loc-tag');
+  locRow.innerHTML = `<span class="loc mono">📍 ОТСЕК ${String(i+1).padStart(2,'0')} · ${lv.loc}</span><span class="cat-pill">${CATS[lv.cat].name}</span>`;
+  card.appendChild(locRow);
+
+  const dlg = el('div','dialogue');
+  dlg.innerHTML = `
+    <div class="dlg-avatar ${sp.cls}">${sp.icon}</div>
+    <div class="dlg-bubble">
+      <div class="dlg-name ${sp.cls}">${sp.name}</div>
+      <div class="dlg-text">${lv.text}</div>
+    </div>`;
+  card.appendChild(dlg);
+
+  if(lv.decor){
+    card.appendChild(buildDecor(lv.decor));
+  }
+
+  const q = el('div','question', lv.question);
+  card.appendChild(q);
+
+  if(lv.type==='choice'){
+    card.appendChild(buildChoices(lv));
+  } else if(lv.type==='input'){
+    card.appendChild(buildInput(lv));
+  } else if(lv.type==='sim'){
+    card.appendChild(buildSim(lv));
+    card.appendChild(buildInput(lv));
+  }
+
+  const fb = el('div','feedback'); fb.id='feedback';
+  card.appendChild(fb);
+
+  const nextRow = el('div','next-row');
+  const nextBtn = el('button','btn primary','Далее →');
+  nextBtn.id='next-btn'; nextBtn.disabled = true; nextBtn.style.display='none';
+  nextBtn.addEventListener('click', ()=>{
+    if(i+1 < LEVELS.length) renderLevel(i+1);
+    else finishGame();
+  });
+  nextRow.appendChild(nextBtn);
+  card.appendChild(nextRow);
+}
+
+/* ------- decor (illustrative, non-scored) mini-sims ------- */
+function buildDecor(kind){
+  const box = el('div','simbox');
+  if(kind==='diffusion'){
+    box.innerHTML = `<div class="sublabel">Энергетическая сетка · температура</div>
+      <div class="particle-wrap" id="pw"></div>
+      <input type="range" id="temp-slider" min="0" max="100" value="20">
+      <div class="readout" id="temp-read">Температура: 20% · скорость частиц: низкая</div>`;
+    setTimeout(()=>{
+      const wrap = document.getElementById('pw');
+      const parts = [];
+      for(let k=0;k<14;k++){
+        const p = el('div','particle');
+        p.style.left = (Math.random()*92)+'%';
+        p.style.top = (Math.random()*85)+'%';
+        wrap.appendChild(p); parts.push(p);
+      }
+      function setSpeed(v){
+        const dur = 2.6 - (v/100)*2.1;
+        parts.forEach((p,idx)=>{
+          p.style.transition = `transform ${dur.toFixed(2)}s ease-in-out`;
+          p.style.animation = `none`;
+        });
+        animateParticles(parts, dur);
+        document.getElementById('temp-read').textContent = 'Температура: '+v+'% · скорость частиц: '+(v<33?'низкая':v<66?'средняя':'высокая');
+      }
+      let raf;
+      function animateParticles(parts, dur){
+        clearInterval(window.__diffInt);
+        window.__diffInt = setInterval(()=>{
+          parts.forEach(p=>{
+            p.style.left = (Math.random()*92)+'%';
+            p.style.top = (Math.random()*85)+'%';
+          });
+        }, Math.max(300,dur*500));
+      }
+      setSpeed(20);
+      document.getElementById('temp-slider').addEventListener('input', e=>setSpeed(+e.target.value));
+    },0);
+  } else if(kind==='friction'){
+    box.innerHTML = `<div class="sublabel">Выбери покрытие пола</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+        <button class="btn" data-mu="0.03" type="button">🧊 Лёд</button>
+        <button class="btn" data-mu="0.3" type="button">🪵 Дерево</button>
+        <button class="btn" data-mu="0.7" type="button">🧱 Наждак</button>
+      </div>
+      <div class="pad-wrap" style="height:70px;"><div class="pad-block" id="fric-block" style="width:50px;height:34px;">📦</div></div>
+      <div class="readout" id="fric-read">Выбери поверхность, чтобы увидеть, как скользит ящик</div>`;
+    setTimeout(()=>{
+      const blk = document.getElementById('fric-block');
+      box.querySelectorAll('button[data-mu]').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const mu = +b.dataset.mu;
+          const dist = (1-mu)*140+10;
+          blk.style.transition='none';
+          blk.style.transform='translateX(0px)';
+          void blk.offsetWidth;
+          blk.style.transition='transform 1.1s cubic-bezier(.15,.7,.3,1)';
+          blk.style.transform='translateX('+dist+'px)';
+          document.getElementById('fric-read').textContent = b.textContent.trim()+': коэффициент трения ≈ '+mu+' — чем он больше, тем короче путь скольжения';
+        });
+      });
+    },0);
+  }
+  return box;
+}
+
+/* ------- choice ------- */
+function buildChoices(lv){
+  const wrap = el('div','choices');
+  const letters = ['А','Б','В','Г'];
+  lv.options.forEach((opt,idx)=>{
+    const b = el('button','choice-card', `<span class="k">${letters[idx]}</span>${opt}`);
+    b.addEventListener('click', ()=>{
+      if(state.answered) return;
+      state.answered = true;
+      const ok = idx===lv.correct;
+      wrap.querySelectorAll('button').forEach((bb,ii)=>{
+        bb.disabled = true;
+        if(ii===lv.correct) bb.classList.add('correct');
+        else if(ii===idx) bb.classList.add('wrong');
+      });
+      registerAnswer(lv, ok);
+    });
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+
+/* ------- input (also used to collect final numeric answer for sims) ------- */
+function buildInput(lv){
+  const wrap = el('div','answer-row');
+  wrap.innerHTML = `<input type="number" step="any" id="ans-input" placeholder="Ответ">
+    <span class="unit mono">${lv.unit||''}</span>
+    <button class="btn primary" id="submit-btn" type="button">Подтвердить</button>`;
+  setTimeout(()=>{
+    const btn = document.getElementById('submit-btn');
+    const inp = document.getElementById('ans-input');
+    const submit = ()=>{
+      if(state.answered) return;
+      const v = parseFloat(inp.value);
+      if(isNaN(v)){ inp.focus(); inp.style.borderColor='var(--bad)'; return; }
+      state.answered = true;
+      inp.disabled = true; btn.disabled = true;
+      const ok = Math.abs(v-lv.correct) <= lv.tol;
+      registerAnswer(lv, ok);
+    };
+    btn.addEventListener('click', submit);
+    inp.addEventListener('keydown', e=>{ if(e.key==='Enter') submit(); });
+  },0);
+  return wrap;
+}
+
+/* ------- simulators ------- */
+function buildSim(lv){
+  const box = el('div','simbox');
+  const labelMap = {
+    balance:'Масса противовеса', density:'Объём образца (для наглядности)', spring:'Растяжение пружины',
+    pressure:'Площадь опоры', depth:'Глубина погружения зонда', archimedes:'Процент погружения контейнера',
+    lever:'Длина плеча l₂'
+  };
+  box.innerHTML = `<div class="sublabel">${labelMap[lv.sim]||'Симулятор'}</div>
+    <div class="visual" id="sim-visual"></div>
+    <input type="range" id="sim-slider" min="${lv.min}" max="${lv.max}" step="${lv.step}" value="${lv.def}">
+    <div class="readout" id="sim-read"></div>`;
+  setTimeout(()=>{
+    mountSim(lv);
+  },0);
+  return box;
+}
+
+function mountSim(lv){
+  const visual = document.getElementById('sim-visual');
+  const slider = document.getElementById('sim-slider');
+  const read = document.getElementById('sim-read');
+
+  if(lv.sim==='balance'){
+    visual.innerHTML = `<div class="beam-wrap">
+      <div class="beam-pole"></div><div class="beam-fulcrum"></div>
+      <div class="beam-bar" id="beam-bar">
+        <div class="beam-pan left">4.7кг</div>
+        <div class="beam-pan right" id="beam-right">0кг</div>
+      </div></div>`;
+    const upd = v=>{
+      const tilt = Math.max(-22, Math.min(22, (v-4.7)*7));
+      document.getElementById('beam-bar').style.transform = `translateX(-50%) rotate(${-tilt}deg)`;
+      document.getElementById('beam-right').textContent = v.toFixed(1)+'кг';
+      read.textContent = `Слева: 4,7 кг · Справа: ${v.toFixed(1)} кг`;
+    };
+    slider.addEventListener('input', e=>upd(+e.target.value)); upd(+slider.value);
+  }
+
+  if(lv.sim==='density'){
+    visual.innerHTML = `<div class="tank-wrap" style="width:90px;"><div class="tank-water" id="dens-water" style="height:40%;"></div></div>`;
+    const upd = v=>{
+      document.getElementById('dens-water').style.height = Math.min(95,(v/3000*95))+'%';
+      const rho_gcm3 = (8000/v).toFixed(2);
+      read.textContent = `Если бы объём образца был ${v} см³, его плотность составила бы ${rho_gcm3} г/см³ (${(rho_gcm3*1000).toFixed(0)} кг/м³). Помни: у нашего образца объём ровно 2000 см³.`;
+    };
+    slider.addEventListener('input', e=>upd(+e.target.value)); upd(+slider.value);
+  }
+
+  if(lv.sim==='spring'){
+    visual.innerHTML = `<div class="spring-wrap">
+      <div class="spring-mount"></div>
+      <div class="spring-coil" id="spring-coil" style="height:20px;"></div>
+      <div class="spring-mass">⚙️</div></div>`;
+    const upd = v=>{
+      document.getElementById('spring-coil').style.height = (20+v*6)+'px';
+      const F = (300*(v/100)).toFixed(1);
+      read.textContent = `Растяжение: ${v.toFixed(1)} см → сила упругости F = k·x = 300×${(v/100).toFixed(3)} = ${F} Н`;
+    };
+    slider.addEventListener('input', e=>upd(+e.target.value)); upd(+slider.value);
+  }
+
+  if(lv.sim==='pressure'){
+    visual.innerHTML = `<div class="pad-wrap">
+      <div class="pad-mark" id="pad-mark" style="width:40px;height:14px;"></div>
+      <div class="pad-block" id="pad-block" style="height:40px;">🛸</div></div>`;
+    const upd = v=>{
+      const p = 800/(v/10000);
+      const sink = Math.min(30, p/3000);
+      document.getElementById('pad-block').style.width = Math.max(30,Math.min(140,v/3))+'px';
+      document.getElementById('pad-block').style.transform = `translateY(${sink}px)`;
+      document.getElementById('pad-mark').style.width = Math.max(30,Math.min(140,v/3))+'px';
+      document.getElementById('pad-mark').style.opacity = Math.min(1, p/60000);
+      read.textContent = `Площадь: ${v} см² → давление p = F/S = 800 / ${(v/10000).toFixed(4)} м² ≈ ${p.toFixed(0)} Па`;
+    };
+    slider.addEventListener('input', e=>upd(+e.target.value)); upd(+slider.value);
+  }
+
+  if(lv.sim==='depth'){
+    visual.innerHTML = `<div class="gauge-wrap"><div class="gauge-water" id="gauge-water" style="height:0%;"></div><div class="gauge-probe" id="gauge-probe" style="top:2px;">🛰️</div></div>`;
+    const upd = v=>{
+      document.getElementById('gauge-water').style.height = (v/10*100)+'%';
+      document.getElementById('gauge-probe').style.top = (8+v/10*95)+'px';
+      const p = 1000*10*v;
+      read.textContent = `Глубина: ${v.toFixed(1)} м → давление p = ρ·g·h = 1000×10×${v.toFixed(1)} = ${p.toFixed(0)} Па`;
+    };
+    slider.addEventListener('input', e=>upd(+e.target.value)); upd(+slider.value);
+  }
+
+  if(lv.sim==='archimedes'){
+    visual.innerHTML = `<div class="tank-wrap"><div class="tank-water" id="arc-water" style="height:55%;"></div><div class="tank-obj" id="arc-obj" style="top:4px;">🧊</div></div>`;
+    const upd = v=>{
+      document.getElementById('arc-obj').style.top = (4+v*0.7)+'px';
+      const F = 20*(v/100);
+      read.textContent = `Погружение: ${v}% → F_A = ρ·g·V·(доля) = 1000×10×0,002×${(v/100).toFixed(2)} = ${F.toFixed(1)} Н`;
+    };
+    slider.addEventListener('input', e=>upd(+e.target.value)); upd(+slider.value);
+  }
+
+  if(lv.sim==='lever'){
+    visual.innerHTML = `<div class="beam-wrap">
+      <div class="beam-pole"></div><div class="beam-fulcrum"></div>
+      <div class="beam-bar" id="lev-bar">
+        <div class="beam-pan left">300Н</div>
+        <div class="beam-pan right" id="lev-right">0м</div>
+      </div></div>`;
+    const upd = v=>{
+      const t1 = 300*0.4, t2 = 150*v;
+      const tilt = Math.max(-22, Math.min(22, (t2-t1)/6));
+      document.getElementById('lev-bar').style.transform = `translateX(-50%) rotate(${-tilt}deg)`;
+      document.getElementById('lev-right').textContent = v.toFixed(2)+'м';
+      read.textContent = `Момент слева: 300×0,4 = 120 Н·м · Момент справа: 150×${v.toFixed(2)} = ${t2.toFixed(0)} Н·м`;
+    };
+    slider.addEventListener('input', e=>upd(+e.target.value)); upd(+slider.value);
+  }
+}
+
+/* ===================== ОТВЕТ / ОБРАТНАЯ СВЯЗЬ ===================== */
+function registerAnswer(lv, ok){
+  state.results[state.idx] = ok;
+  state.cat[lv.cat].t += 1;
+  if(ok){ state.score += 1; state.cat[lv.cat].c += 1; }
+  updateHud(); updateTrail();
+
+  const fb = document.getElementById('feedback');
+  fb.classList.add('show', ok?'ok':'bad');
+  const okLines = ['Отлично, кадет! Система стабилизирована.','Есть контакт! Отсек в норме.','Именно так. Экипаж впечатлён.'];
+  const badLines = ['Мимо. Но данные всё равно полезны — разбираем.','Не в этот раз. Смотри объяснение ниже.','Почти! На будущее запомни формулу.'];
+  const line = ok ? okLines[state.idx%okLines.length] : badLines[state.idx%badLines.length];
+  fb.innerHTML = `<b>${ok?'✅ Верно.':'❌ Неверно.'}</b> ${line}<br><span style="color:#c9c6e6;">${lv.explain}</span>`;
+
+  const nb = document.getElementById('next-btn');
+  nb.disabled = false; nb.style.display = 'inline-block';
+  nb.textContent = (state.idx+1 < LEVELS.length) ? 'Следующий отсек →' : 'Завершить миссию 🏁';
+}
+
+/* ===================== ФИНАЛ ===================== */
+function finishGame(){
+  clearInterval(state.timerId);
+  showScreen('#screen-results');
+
+  const pct = Math.round(state.score/20*100);
+  $('#res-score').textContent = `⭐ Собрано очков: ${state.score} / 20`;
+  const ranks = [
+    [0,'Стажёр-кадет — миссия только начата'],
+    [5,'Курсант эскадры — база заложена'],
+    [10,'Пилот-исследователь — уверенный уровень'],
+    [15,'Штурман дальнего рубежа — почти ас'],
+    [19,'Командир Легенды KEschool — идеальный полёт']
+  ];
+  let rankText = ranks[0][1];
+  for(const [th,txt] of ranks) if(state.score>=th) rankText = txt;
+  $('#res-rank').textContent = 'Ранг: '+rankText;
+  $('#res-sub').textContent = `Пилот: ${state.name} · Время миссии: ${fmtTime(state.elapsedMs)} · Точность: ${pct}%`;
+
+  const metricsBox = $('#res-metrics'); metricsBox.innerHTML='';
+  const catPct = {};
+  Object.keys(CATS).forEach(k=>{
+    const c = state.cat[k];
+    const p = c.t ? Math.round(c.c/c.t*100) : 0;
+    catPct[k]=p;
+    const row = el('div','metric-row');
+    row.innerHTML = `<div class="top"><span>${CATS[k].name}</span><b>${c.c}/${c.t} · ${p}%</b></div>
+      <div class="metric-bar"><div class="metric-fill" style="width:0%" data-w="${p}"></div></div>`;
+    metricsBox.appendChild(row);
+  });
+  setTimeout(()=>{
+    document.querySelectorAll('.metric-fill').forEach(f=>{ f.style.width = f.dataset.w+'%'; });
+  },80);
+
+  renderRecommendations(catPct, pct);
+}
+
+function renderRecommendations(catPct, overallPct){
+  const block = $('#reco-block');
+  const sorted = Object.entries(catPct).sort((a,b)=>a[1]-b[1]);
+  const weakest = sorted.filter(([k,p])=>p<70).slice(0,2);
+  const strongest = sorted.filter(([k,p])=>p>=80);
+
+  let head, intro;
+  if(overallPct>=90){
+    head = 'Продвинутый трек';
+    intro = `${state.name}, это блестящий результат — физика 7 класса уже прочно усвоена. Такому пилоту стоит двигаться быстрее программы и пробовать олимпиадные задачи.`;
+  } else if(overallPct>=60){
+    head = 'Индивидуальная траектория';
+    intro = `${state.name}, база заложена хорошо, но есть точки роста. Рекомендуем адресную программу по темам, где закрались ошибки — без повторения всего курса заново.`;
+  } else {
+    head = 'Программа с нуля';
+    intro = `${state.name}, тест показал, что стоит начать с системного курса «Физика 7 класса» в KEschool: разобрать базовые понятия последовательно, шаг за шагом, с практикой на каждом занятии.`;
+  }
+
+  let html = `<div class="reco-head"><div class="tag">Персональный разбор</div><h2>${head}</h2></div>
+    <div class="reco-card"><p>${intro}</p></div>`;
+
+  if(weakest.length){
+    weakest.forEach(([k,p])=>{
+      html += `<div class="reco-card">
+        <h4>🎯 ${CATS[k].name} · ${p}% верных ответов</h4>
+        <p>Это направление стоит закрепить в первую очередь — на курсе KEschool оно разбирается через практические задачи и мини-симуляторы, похожие на те, что были в миссии.</p>
+        <div class="reco-modules">${CATS[k].mods.map(m=>`<span>${m}</span>`).join('')}</div>
+      </div>`;
+    });
+  } else {
+    html += `<div class="reco-card">
+      <h4>🎯 Слабых тем не выявлено</h4>
+      <p>Все ключевые направления 7 класса — на уверенном уровне. Можно переходить к более сложным задачам и готовиться к олимпиадам.</p>
+    </div>`;
+  }
+
+  if(strongest.length){
+    html += `<div class="reco-card">
+      <h4>🚀 Сильные стороны</h4>
+      <p>${strongest.map(([k])=>CATS[k].name).join(', ')} — здесь результат уже выше 80%. На курсе эти темы можно проходить в ускоренном темпе, освобождая время на разбор сложных задач.</p>
+    </div>`;
+  }
+
+  html += `<div class="cta-card">
+    <h3>Готовая программа обучения для ${state.name}</h3>
+    <p>По итогам теста KEschool может собрать индивидуальный план занятий по физике — с упором именно на выявленные темы.</p>
+  </div>`;
+
+  block.innerHTML = html;
+}
+</script>
+</body>
+</html>
